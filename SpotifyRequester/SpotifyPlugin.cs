@@ -1,23 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
-using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Xml.Linq;
-using Newtonsoft.Json;
+using Client;
 using Plugin;
 
 namespace SpotifyRequester
 {
-    public class CommentData
-    {
-        [JsonProperty("comment")] public string Comment { get; set; }
-    }
-
-
     public class SpotifyPlugin : IPlugin
     {
+        private readonly object _lockObject = new object();
+        private bool _voting;
+
         public async void AutoRun()
         {
             // var url =
@@ -29,31 +23,7 @@ namespace SpotifyRequester
             // }
 
 
-            this.Host.ReceivedComment += Host_ReceivedComment;
-        }
-
-        private async void Host_ReceivedComment(object sender, ReceivedCommentEventArgs e)
-        {
-            try
-            {
-                foreach (var comment in e.CommentDataList)
-                {
-                    using (var client = new HttpClient())
-                    {
-                        var json = JsonConvert.SerializeObject(new CommentData
-                        {
-                            Comment = comment.Comment,
-                        });
-                        var content = new StringContent(json, Encoding.UTF8, "application/json");
-                        await client.PostAsync("http://localhost:8000/comment", content);
-                    }
-                }
-            }
-            catch (Exception exception)
-            {
-                MessageBox.Show(exception.Message);
-                throw;
-            }
+            Host.ReceivedComment += Host_ReceivedComment;
         }
 
         public void Run()
@@ -65,5 +35,85 @@ namespace SpotifyRequester
         public string Description => "コメントからSpotifyの曲をリクエストします。";
         public string Version => "1.0.0";
         public string Name => "SpotifyRequester";
+
+        private async void Host_ReceivedComment(object sender, ReceivedCommentEventArgs e)
+        {
+            try
+            {
+                foreach (var comment in e.CommentDataList)
+                {
+                    var data = new CommentData
+                    {
+                        Comment = comment.Comment
+                    };
+
+                    var response = await SpotifyHttp.PostCommentAsync(data);
+                    ProcessResponseAsync(response);
+                }
+            }
+            catch (Exception exception)
+            {
+                MessageBox.Show(exception.Message);
+                throw;
+            }
+        }
+
+
+        private bool ProcessResponseAsync(string response)
+        {
+            if (SpotifyHttp.TryParsSearch(response, out var search)) return Host.SendOwnerComment(search.ToComment());
+
+            if (SpotifyHttp.TryParseSearchAndVote(response, out var sv))
+            {
+                if (IsVoting())
+                {
+                    Host.SendOwnerComment("現在投票中のためリクエストは無効になりました。");
+                }
+                else
+                {
+                    SetVote(true);
+                    var tracks = string.Join(" ", sv.SearchAndVote.Tracks
+                        .Take(9)
+                        .Select(track => track.Name));
+
+                    Host.SendOwnerComment($"/vote start 次の曲 {tracks}");
+                }
+            }
+
+            if (SpotifyHttp.TryParseShowNext(response, out var showNext)) return Host.SendComment(showNext.ToComment());
+
+
+            return true;
+        }
+
+        private void VoteTimeoutHandler(bool vote)
+        {
+            Task.Run(async () =>
+            {
+                await Task.Delay(10000);
+                Host.SendOwnerComment("/vote stop");
+
+                Host.SendOwnerComment("/vote showresult");
+
+                SetVote(false);
+            });
+        }
+
+        private bool IsVoting()
+        {
+            lock (_lockObject)
+            {
+                return _voting;
+            }
+        }
+
+
+        private void SetVote(bool vote)
+        {
+            lock (_lockObject)
+            {
+                _voting = vote;
+            }
+        }
     }
 }

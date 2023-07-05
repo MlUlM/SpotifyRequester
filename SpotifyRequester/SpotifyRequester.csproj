@@ -40,11 +40,11 @@
       <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="NicoLibrary">
-      <HintPath>C:\Program Files (x86)\posite-c\NiconamaCommentViewer\NicoLibrary.dll</HintPath>
+      <HintPath>..\..\..\..\Downloads\NCV_218\NicoLibrary.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Plugin">
-      <HintPath>C:\Program Files (x86)\posite-c\NiconamaCommentViewer\Plugin.dll</HintPath>
+      <HintPath>..\..\..\..\Downloads\NCV_218\Plugin.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -86,6 +86,12 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Client\Client.csproj">
+      <Project>{21e35801-f802-4095-a58a-7c126dfa6fb7}</Project>
+      <Name>Client</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

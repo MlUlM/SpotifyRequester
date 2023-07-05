@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
+using System.Diagnostics;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,7 +7,7 @@ using Newtonsoft.Json;
 
 namespace Client
 {
-    public class HttpSpotify
+    public class SpotifyHttp
     {
         public static async Task<string> PostCommentAsync(CommentData comment)
         {
@@ -31,8 +29,9 @@ namespace Client
                 none = JsonConvert.DeserializeObject<NoneResponse>(response);
                 return true;
             }
-            catch
+            catch (Exception e)
             {
+                Debug.WriteLine(e);
                 none = null;
                 return false;
             }
@@ -46,24 +45,42 @@ namespace Client
                 none = JsonConvert.DeserializeObject<SearchResponse>(response);
                 return true;
             }
-            catch
+            catch (Exception e)
             {
+                Debug.WriteLine(e);
                 none = null;
                 return false;
             }
         }
 
 
-        public static bool TryParseShowNext(string response, out ShowNextResponse none)
+        public static bool TryParseSearchAndVote(string response, out SearchAndVoteResponse sv)
         {
             try
             {
-                none = JsonConvert.DeserializeObject<ShowNextResponse>(response);
+                sv = JsonConvert.DeserializeObject<SearchAndVoteResponse>(response);
                 return true;
             }
-            catch
+            catch (Exception e)
             {
-                none = null;
+                Debug.WriteLine(e);
+                sv = null;
+                return false;
+            }
+        }
+
+
+        public static bool TryParseShowNext(string response, out ShowNextResponse showNext)
+        {
+            try
+            {
+                showNext = JsonConvert.DeserializeObject<ShowNextResponse>(response);
+                return true;
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+                showNext = null;
                 return false;
             }
         }

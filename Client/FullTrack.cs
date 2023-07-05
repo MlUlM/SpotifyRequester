@@ -1,13 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace Client
 {
@@ -52,9 +44,15 @@ namespace Client
         [JsonProperty("uri")] public string Uri { get; set; }
 
         [JsonProperty("is_local")] public bool IsLocal { get; set; }
+
+
+        public string ToComment()
+        {
+            return $"[Name={Name}, Id={Id}, Uri={Uri}]";
+        }
     }
 
-    public partial class Album
+    public class Album
     {
         [JsonProperty("album_type")] public string AlbumType { get; set; }
 
@@ -98,7 +96,7 @@ namespace Client
         [JsonProperty("artists")] public AlbumArtist[] Artists { get; set; }
     }
 
-    public partial class AlbumArtist
+    public class AlbumArtist
     {
         [JsonProperty("external_urls")] public ExternalUrls ExternalUrls { get; set; }
 
@@ -113,19 +111,19 @@ namespace Client
         [JsonProperty("uri")] public string Uri { get; set; }
     }
 
-    public partial class ExternalUrls
+    public class ExternalUrls
     {
         [JsonProperty("spotify")] public string Spotify { get; set; }
     }
 
-    public partial class Copyright
+    public class Copyright
     {
         [JsonProperty("text")] public string Text { get; set; }
 
         [JsonProperty("type")] public string Type { get; set; }
     }
 
-    public partial class ExternalIds
+    public class ExternalIds
     {
         [JsonProperty("isrc")] public string Isrc { get; set; }
 
@@ -134,7 +132,7 @@ namespace Client
         [JsonProperty("upc")] public string Upc { get; set; }
     }
 
-    public partial class Image
+    public class Image
     {
         [JsonProperty("url")] public Uri Url { get; set; }
 
@@ -143,12 +141,12 @@ namespace Client
         [JsonProperty("width")] public long Width { get; set; }
     }
 
-    public partial class Restrictions
+    public class Restrictions
     {
         [JsonProperty("reason")] public string Reason { get; set; }
     }
 
-    public partial class TemperaturesArtist
+    public class TemperaturesArtist
     {
         [JsonProperty("external_urls")] public ExternalUrls ExternalUrls { get; set; }
 
@@ -171,14 +169,14 @@ namespace Client
         [JsonProperty("uri")] public string Uri { get; set; }
     }
 
-    public partial class Followers
+    public class Followers
     {
         [JsonProperty("href")] public string Href { get; set; }
 
         [JsonProperty("total")] public long Total { get; set; }
     }
 
-    public partial class LinkedFrom
+    public class LinkedFrom
     {
     }
 }
